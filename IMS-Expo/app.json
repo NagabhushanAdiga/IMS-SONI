@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Soni Traders",
+    "slug": "IMS-Expo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#16213e"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sonitraders.ims"
+    },
+    "android": {
+      "package": "com.sonitraders.ims",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#16213e"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b60e8c5c-d5e9-4a32-8d62-8ad24380a52e"
+      }
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker"
+    ]
+  }
+}
