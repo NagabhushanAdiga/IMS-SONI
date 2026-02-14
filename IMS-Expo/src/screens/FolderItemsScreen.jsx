@@ -7,12 +7,14 @@ import {
   FlatList,
   StyleSheet,
   Modal,
+  ScrollView,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import StylishLoader from '../components/StylishLoader';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTheme } from '../context/ThemeContext';
 import { productAPI, categoryAPI } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import CustomSnackbar from '../components/Snackbar';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 
@@ -29,6 +31,7 @@ const getStatusColor = (status) => {
 };
 
 export default function FolderItemsScreen({ route, navigation }) {
+  const { t } = useTranslation();
   const { folderId, folderName } = route.params || {};
   const { colors } = useTheme();
   const [folder, setFolder] = useState(null);
@@ -115,7 +118,7 @@ export default function FolderItemsScreen({ route, navigation }) {
 
   const handleSave = async () => {
     if (!formData.name?.trim()) {
-      setSnackbar({ open: true, message: 'Box name is required', severity: 'error' });
+      setSnackbar({ open: true, message: t('folderItems.boxNameRequired'), severity: 'error' });
       return;
     }
     setSaving(true);
@@ -138,9 +141,9 @@ export default function FolderItemsScreen({ route, navigation }) {
       }
       setOpenDialog(false);
       fetchItems();
-      setSnackbar({ open: true, message: editingProduct ? 'Box updated!' : 'Box added!', severity: 'success' });
+      setSnackbar({ open: true, message: editingProduct ? t('folderItems.boxUpdated') : t('folderItems.boxAdded'), severity: 'success' });
     } catch (error) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Error saving', severity: 'error' });
+      setSnackbar({ open: true, message: error.response?.data?.message || t('folderItems.errorSaving'), severity: 'error' });
     } finally {
       setSaving(false);
     }
@@ -154,9 +157,9 @@ export default function FolderItemsScreen({ route, navigation }) {
       await productAPI.delete(deleteTarget._id);
       setDeleteTarget(null);
       fetchItems();
-      setSnackbar({ open: true, message: 'Box deleted!', severity: 'success' });
+      setSnackbar({ open: true, message: t('folderItems.boxDeleted'), severity: 'success' });
     } catch (error) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Error deleting', severity: 'error' });
+      setSnackbar({ open: true, message: error.response?.data?.message || t('folderItems.errorDeleting'), severity: 'error' });
     }
   };
 
@@ -170,14 +173,14 @@ export default function FolderItemsScreen({ route, navigation }) {
           </View>
         </View>
         <View style={styles.stats}>
-          <View style={styles.stat}><Text style={styles.statLabel}>Total</Text><Text style={styles.statValue}>{item.totalStock || 0}</Text></View>
-          <View style={styles.stat}><Text style={[styles.statLabel, { color: '#d32f2f' }]}>Sold</Text><Text style={[styles.statValue, { color: '#d32f2f' }]}>{item.sold || 0}</Text></View>
-          <View style={styles.stat}><Text style={[styles.statLabel, { color: '#ed6c02' }]}>Return</Text><Text style={[styles.statValue, { color: '#ed6c02' }]}>{item.returned || 0}</Text></View>
-          <View style={styles.stat}><Text style={[styles.statLabel, { color: '#2e7d32' }]}>Stock</Text><Text style={[styles.statValue, { color: '#2e7d32' }]}>{item.stock || 0}</Text></View>
+          <View style={styles.stat}><Text style={styles.statLabel}>{t('folderItems.total')}</Text><Text style={styles.statValue}>{item.totalStock || 0}</Text></View>
+          <View style={styles.stat}><Text style={[styles.statLabel, { color: '#d32f2f' }]}>{t('folderItems.sold')}</Text><Text style={[styles.statValue, { color: '#d32f2f' }]}>{item.sold || 0}</Text></View>
+          <View style={styles.stat}><Text style={[styles.statLabel, { color: '#ed6c02' }]}>{t('folderItems.return')}</Text><Text style={[styles.statValue, { color: '#ed6c02' }]}>{item.returned || 0}</Text></View>
+          <View style={styles.stat}><Text style={[styles.statLabel, { color: '#2e7d32' }]}>{t('folderItems.stock')}</Text><Text style={[styles.statValue, { color: '#2e7d32' }]}>{item.stock || 0}</Text></View>
         </View>
         <View style={styles.cardActions}>
-          <TouchableOpacity style={styles.editBtn} onPress={() => handleOpenDialog(item)}><Text style={styles.editBtnText}>Edit</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.delBtn} onPress={() => handleDelete(item)}><Text style={styles.delBtnText}>Delete</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.editBtn} onPress={() => handleOpenDialog(item)}><Text style={styles.editBtnText}>{t('common.edit')}</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.delBtn} onPress={() => handleDelete(item)}><Text style={styles.delBtnText}>{t('common.delete')}</Text></TouchableOpacity>
         </View>
       </View>
     </Animated.View>
@@ -186,18 +189,18 @@ export default function FolderItemsScreen({ route, navigation }) {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Animated.View entering={FadeInUp.delay(0).duration(300).springify()}>
-        <Text style={[styles.header, { color: colors.text }]}>{folder?.name || folderName || 'Loading...'}</Text>
+        <Text style={[styles.header, { color: colors.text }]}>{folder?.name || folderName || t('common.loading')}</Text>
       </Animated.View>
       <Animated.View entering={FadeInUp.delay(80).duration(300).springify()}>
         <TouchableOpacity style={styles.addBtn} onPress={() => handleOpenDialog()}>
-          <Text style={styles.addBtnText}>+ Add box</Text>
+          <Text style={styles.addBtnText}>{t('folderItems.addBox')}</Text>
         </TouchableOpacity>
       </Animated.View>
       <Animated.View entering={FadeInUp.delay(160).duration(300).springify()}>
-        <Text style={[styles.inputLabel, { color: colors.text }]}>Search boxes</Text>
+        <Text style={[styles.inputLabel, { color: colors.text }]}>{t('folderItems.searchBoxes')}</Text>
         <TextInput
           style={[styles.search, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
-          placeholder="Search boxes..."
+          placeholder={t('folderItems.searchPlaceholder')}
           placeholderTextColor={colors.placeholder}
           value={searchTerm}
           onChangeText={setSearchTerm}
@@ -206,7 +209,7 @@ export default function FolderItemsScreen({ route, navigation }) {
       <Animated.View entering={FadeInUp.delay(240).duration(300).springify()} style={styles.filterRow}>
         {['all', 'inStock', 'sold', 'returned'].map((f) => (
           <TouchableOpacity key={f} style={[styles.filterChip, filter === f && styles.filterChipActive]} onPress={() => setFilter(f)}>
-            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f === 'all' ? 'All' : f === 'inStock' ? 'In stock' : f}</Text>
+            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f === 'all' ? t('common.all') : f === 'inStock' ? t('folderItems.inStock') : t(`folderItems.${f}`)}</Text>
           </TouchableOpacity>
         ))}
       </Animated.View>
@@ -218,60 +221,142 @@ export default function FolderItemsScreen({ route, navigation }) {
         <FlatList data={filteredItems} keyExtractor={(item) => item._id} renderItem={renderItem} contentContainerStyle={styles.list} />
       )}
 
-      <Modal visible={openDialog} transparent animationType="slide">
+      <Modal visible={openDialog} transparent animationType="slide" onRequestClose={() => setOpenDialog(false)}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modal, { backgroundColor: colors.card }]}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>{editingProduct ? 'Edit box' : 'Add box'}</Text>
-            <Text style={[styles.inputLabel, { color: colors.text }]}>Box name *</Text>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>{editingProduct ? t('folderItems.editBox') : t('folderItems.addBoxTitle')}</Text>
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={styles.modalScroll}>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>{t('folderItems.boxName')}</Text>
             <TextInput
               style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
-              placeholder="Enter box name"
+              placeholder={t('folderItems.boxNamePlaceholder')}
               placeholderTextColor={colors.placeholder}
               value={formData.name}
               onChangeText={(t) => setFormData({ ...formData, name: t })}
             />
-            <Text style={[styles.inputLabel, { color: colors.text }]}>Total stock</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
-              placeholder="Enter total stock"
-              placeholderTextColor={colors.placeholder}
-              keyboardType="numeric"
-              value={formData.totalStock}
-              onChangeText={(t) => setFormData({ ...formData, totalStock: t })}
-            />
-            <Text style={[styles.inputLabel, { color: colors.text }]}>Sold</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
-              placeholder="Enter sold count"
-              placeholderTextColor={colors.placeholder}
-              keyboardType="numeric"
-              value={formData.sold}
-              onChangeText={(t) => setFormData({ ...formData, sold: t })}
-            />
-            <Text style={[styles.inputLabel, { color: colors.text }]}>Returned</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
-              placeholder="Enter returned count"
-              placeholderTextColor={colors.placeholder}
-              keyboardType="numeric"
-              value={formData.returned}
-              onChangeText={(t) => setFormData({ ...formData, returned: t })}
-            />
-            <Text style={[styles.inputLabel, { color: colors.text }]}>Price</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
-              placeholder="Enter price"
-              placeholderTextColor={colors.placeholder}
-              keyboardType="decimal-pad"
-              value={formData.price}
-              onChangeText={(t) => setFormData({ ...formData, price: t })}
-            />
+            <Text style={[styles.inputLabel, { color: colors.text }]}>{t('folderItems.totalStock')}</Text>
+            <View style={styles.soldRow}>
+              <TouchableOpacity
+                style={[styles.incDecBtn, { backgroundColor: colors.border || '#e2e8f0' }]}
+                onPress={() => {
+                  const v = Math.max(0, parseInt(formData.totalStock || 0, 10) - 1);
+                  setFormData({ ...formData, totalStock: String(v) });
+                }}
+              >
+                <Text style={styles.incDecText}>−</Text>
+              </TouchableOpacity>
+              <TextInput
+                style={[styles.soldInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+                placeholder={t('folderItems.totalStockPlaceholder')}
+                placeholderTextColor={colors.placeholder}
+                keyboardType="numeric"
+                value={formData.totalStock}
+                onChangeText={(t) => setFormData({ ...formData, totalStock: t })}
+              />
+              <TouchableOpacity
+                style={[styles.incDecBtn, { backgroundColor: colors.border || '#e2e8f0' }]}
+                onPress={() => {
+                  const v = parseInt(formData.totalStock || 0, 10) + 1;
+                  setFormData({ ...formData, totalStock: String(v) });
+                }}
+              >
+                <Text style={styles.incDecText}>+</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>{t('folderItems.sold')}</Text>
+            <View style={styles.soldRow}>
+              <TouchableOpacity
+                style={[styles.incDecBtn, { backgroundColor: colors.border || '#e2e8f0' }]}
+                onPress={() => {
+                  const v = Math.max(0, parseInt(formData.sold || 0, 10) - 1);
+                  setFormData({ ...formData, sold: String(v) });
+                }}
+              >
+                <Text style={styles.incDecText}>−</Text>
+              </TouchableOpacity>
+              <TextInput
+                style={[styles.soldInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+                placeholder={t('folderItems.soldCount')}
+                placeholderTextColor={colors.placeholder}
+                keyboardType="numeric"
+                value={formData.sold}
+                onChangeText={(t) => setFormData({ ...formData, sold: t })}
+              />
+              <TouchableOpacity
+                style={[styles.incDecBtn, { backgroundColor: colors.border || '#e2e8f0' }]}
+                onPress={() => {
+                  const v = parseInt(formData.sold || 0, 10) + 1;
+                  setFormData({ ...formData, sold: String(v) });
+                }}
+              >
+                <Text style={styles.incDecText}>+</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>{t('folderItems.returned')}</Text>
+            <View style={styles.soldRow}>
+              <TouchableOpacity
+                style={[styles.incDecBtn, { backgroundColor: colors.border || '#e2e8f0' }]}
+                onPress={() => {
+                  const v = Math.max(0, parseInt(formData.returned || 0, 10) - 1);
+                  setFormData({ ...formData, returned: String(v) });
+                }}
+              >
+                <Text style={styles.incDecText}>−</Text>
+              </TouchableOpacity>
+              <TextInput
+                style={[styles.soldInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+                placeholder={t('folderItems.returnedPlaceholder')}
+                placeholderTextColor={colors.placeholder}
+                keyboardType="numeric"
+                value={formData.returned}
+                onChangeText={(t) => setFormData({ ...formData, returned: t })}
+              />
+              <TouchableOpacity
+                style={[styles.incDecBtn, { backgroundColor: colors.border || '#e2e8f0' }]}
+                onPress={() => {
+                  const v = parseInt(formData.returned || 0, 10) + 1;
+                  setFormData({ ...formData, returned: String(v) });
+                }}
+              >
+                <Text style={styles.incDecText}>+</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>{t('folderItems.price')}</Text>
+            <View style={styles.soldRow}>
+              <TouchableOpacity
+                style={[styles.incDecBtn, { backgroundColor: colors.border || '#e2e8f0' }]}
+                onPress={() => {
+                  const v = Math.max(0, parseFloat(formData.price || 0) - 1);
+                  setFormData({ ...formData, price: String(v) });
+                }}
+              >
+                <Text style={styles.incDecText}>−</Text>
+              </TouchableOpacity>
+              <TextInput
+                style={[styles.soldInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+                placeholder={t('folderItems.pricePlaceholder')}
+                placeholderTextColor={colors.placeholder}
+                keyboardType="decimal-pad"
+                value={formData.price}
+                onChangeText={(t) => setFormData({ ...formData, price: t })}
+              />
+              <TouchableOpacity
+                style={[styles.incDecBtn, { backgroundColor: colors.border || '#e2e8f0' }]}
+                onPress={() => {
+                  const v = parseFloat(formData.price || 0) + 1;
+                  setFormData({ ...formData, price: String(v) });
+                }}
+              >
+                <Text style={styles.incDecText}>+</Text>
+              </TouchableOpacity>
+            </View>
+            </ScrollView>
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setOpenDialog(false)}>
-                <Text style={styles.cancelBtnText}>Cancel</Text>
+                <Text style={styles.cancelBtnText}>{t('common.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={saving}>
-                <Text style={styles.saveBtnText}>{saving ? 'Saving...' : editingProduct ? 'Update' : 'Add'}</Text>
+                <Text style={styles.saveBtnText}>{saving ? t('common.loading') : editingProduct ? t('common.update') : t('common.add')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -280,10 +365,10 @@ export default function FolderItemsScreen({ route, navigation }) {
 
       <ConfirmationDialog
         visible={!!deleteTarget}
-        title="Delete box"
-        message={deleteTarget ? `Are you sure you want to delete "${deleteTarget.name}"? This action cannot be undone.` : ''}
-        confirmText="Delete"
-        cancelText="Cancel"
+        title={t('folderItems.deleteBox')}
+        message={deleteTarget ? t('folderItems.deleteBoxConfirm', { name: deleteTarget.name }) : ''}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         variant="destructive"
         icon="trash-outline"
         onConfirm={confirmDelete}
@@ -323,9 +408,14 @@ const styles = StyleSheet.create({
   delBtnText: { color: 'white', fontSize: 16, fontWeight: '600' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 24 },
   modal: { backgroundColor: 'white', borderRadius: 12, padding: 24 },
+  modalScroll: { maxHeight: 400 },
   modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
   inputLabel: { fontSize: 15, fontWeight: '600', marginBottom: 6 },
   input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, marginBottom: 12, fontSize: 16 },
+  soldRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  incDecBtn: { width: 44, height: 48, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  incDecText: { fontSize: 24, fontWeight: '600', color: '#333' },
+  soldInput: { flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, fontSize: 16, textAlign: 'center' },
   modalActions: { marginTop: 20, gap: 12 },
   cancelBtn: { width: '100%', paddingVertical: 14, paddingHorizontal: 16, borderRadius: 8, alignItems: 'center', backgroundColor: '#f1f5f9', borderWidth: 1, borderColor: '#e2e8f0' },
   cancelBtnText: { color: '#64748b', fontWeight: '600', fontSize: 17 },

@@ -25,8 +25,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { authAPI } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const { login: onLogin } = useAuth();
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
@@ -69,7 +71,7 @@ export default function LoginScreen() {
 
   const handleSubmit = async () => {
     if (pin.length < 4) {
-      setError('Enter at least 4 digits');
+      setError(t('login.errorMinDigits'));
       return;
     }
     setLoading(true);
@@ -80,7 +82,7 @@ export default function LoginScreen() {
       await AsyncStorage.setItem('user', JSON.stringify(data));
       onLogin();
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid PIN. Please try again.');
+      setError(err.response?.data?.message || t('login.errorInvalidPin'));
     } finally {
       setLoading(false);
     }
@@ -106,19 +108,19 @@ export default function LoginScreen() {
           entering={FadeInDown.delay(200).duration(500).springify()}
           style={styles.brandName}
         >
-          Soni Traders
+          {t('login.brand')}
         </Animated.Text>
         <Animated.Text
           entering={FadeInDown.delay(350).duration(500).springify()}
           style={styles.tagline}
         >
-          Inventory Management
+          {t('login.tagline')}
         </Animated.Text>
         <Animated.Text
           entering={FadeInDown.delay(450).duration(500).springify()}
           style={styles.location}
         >
-          Kanakagiri, Karnataka
+          {t('login.location')}
         </Animated.Text>
       </View>
 
@@ -127,8 +129,8 @@ export default function LoginScreen() {
         style={[styles.formWrapper, { paddingBottom: insets.bottom }]}
       >
         <Animated.View style={[styles.card, cardAnimatedStyle]}>
-          <Text style={styles.welcome}>Welcome back</Text>
-          <Text style={styles.hint}>Enter your PIN to access your inventory</Text>
+          <Text style={styles.welcome}>{t('login.welcome')}</Text>
+          <Text style={styles.hint}>{t('login.hint')}</Text>
 
           {error ? (
             <Animated.View
@@ -174,12 +176,12 @@ export default function LoginScreen() {
               {loading ? (
                 <StylishLoader size="small" variant="dots" color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Sign in</Text>
+                <Text style={styles.buttonText}>{t('login.signIn')}</Text>
               )}
             </LinearGradient>
           </TouchableOpacity>
 
-          <Text style={styles.footer}>Secure PIN authentication</Text>
+          <Text style={styles.footer}>{t('login.footer')}</Text>
         </Animated.View>
       </KeyboardAvoidingView>
     </LinearGradient>

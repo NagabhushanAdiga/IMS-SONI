@@ -8,17 +8,19 @@ import { useTheme } from '../context/ThemeContext';
 import { authAPI, productAPI, categoryAPI, saleAPI } from '../services/api';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import CustomSnackbar from '../components/Snackbar';
+import { useTranslation } from 'react-i18next';
 
 const MENU_ITEMS = [
-  { name: 'Folders', screen: 'Folders', icon: 'folder-outline' },
-  { name: 'Sales', screen: 'Sales', icon: 'cart-outline' },
-  { name: 'Returns', screen: 'Returns', icon: 'return-down-back-outline' },
-  { name: 'Reports', screen: 'Reports', icon: 'bar-chart-outline' },
-  { name: 'Settings', screen: 'Settings', icon: 'settings-outline' },
-  { name: 'Developer', screen: 'Developer', icon: 'code-slash-outline' },
+  { nameKey: 'nav.folders', screen: 'Folders', icon: 'folder-outline' },
+  { nameKey: 'nav.sales', screen: 'Sales', icon: 'cart-outline' },
+  { nameKey: 'nav.returns', screen: 'Returns', icon: 'return-down-back-outline' },
+  { nameKey: 'nav.reports', screen: 'Reports', icon: 'bar-chart-outline' },
+  { nameKey: 'nav.settings', screen: 'Settings', icon: 'settings-outline' },
+  { nameKey: 'nav.developer', screen: 'Developer', icon: 'code-slash-outline' },
 ];
 
 export default function MoreMenuScreen({ navigation }) {
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const { isDark, toggleTheme, colors } = useTheme();
   const [logoutDialog, setLogoutDialog] = useState(false);
@@ -40,7 +42,7 @@ export default function MoreMenuScreen({ navigation }) {
         email: data.email || '',
       });
     } catch (error) {
-      setProfileData({ fullName: 'User', email: '' });
+      setProfileData({ fullName: t('more.user'), email: '' });
     } finally {
       setLoading(false);
     }
@@ -74,11 +76,11 @@ export default function MoreMenuScreen({ navigation }) {
         } catch (e) {}
       }
       setClearDataDialog(false);
-      setSnackbar({ open: true, message: 'All data cleared successfully!', severity: 'success' });
+      setSnackbar({ open: true, message: t('more.dataCleared'), severity: 'success' });
     } catch (error) {
       setSnackbar({
         open: true,
-        message: error.response?.data?.message || 'Failed to clear data. Please try again.',
+        message: error.response?.data?.message || t('more.dataClearFailed'),
         severity: 'error',
       });
     } finally {
@@ -100,8 +102,8 @@ export default function MoreMenuScreen({ navigation }) {
             )}
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{loading ? 'Loading...' : profileData.fullName || 'User'}</Text>
-            <Text style={styles.profileRole}>Administrator</Text>
+            <Text style={styles.profileName}>{loading ? t('common.loading') : profileData.fullName || t('more.user')}</Text>
+            <Text style={styles.profileRole}>{t('more.administrator')}</Text>
             {profileData.email ? <Text style={styles.profileEmail}>{profileData.email}</Text> : null}
           </View>
         </View>
@@ -110,7 +112,7 @@ export default function MoreMenuScreen({ navigation }) {
       <View style={styles.quickSection}>
         <View style={[styles.themeRow, { backgroundColor: colors.card }]}>
           <Ionicons name={isDark ? 'moon' : 'sunny-outline'} size={22} color={colors.primary} style={styles.quickIcon} />
-          <Text style={[styles.themeLabel, { color: colors.text }]}>Dark / Light mode</Text>
+          <Text style={[styles.themeLabel, { color: colors.text }]}>{t('more.darkLightMode')}</Text>
           <Switch value={isDark} onValueChange={toggleTheme} trackColor={{ false: colors.border, true: colors.primary }} thumbColor="#fff" />
         </View>
       </View>
@@ -123,7 +125,7 @@ export default function MoreMenuScreen({ navigation }) {
           activeOpacity={0.7}
         >
           <Ionicons name={item.icon} size={22} color={colors.primary} style={styles.icon} />
-          <Text style={[styles.label, { color: colors.text }]}>{item.name}</Text>
+          <Text style={[styles.label, { color: colors.text }]}>{t(item.nameKey)}</Text>
         </TouchableOpacity>
       ))}
       <TouchableOpacity
@@ -137,20 +139,20 @@ export default function MoreMenuScreen({ navigation }) {
         ) : (
           <>
             <Ionicons name="trash-outline" size={22} color="#dc2626" style={styles.icon} />
-            <Text style={styles.clearDataText}>Delete All Data</Text>
+            <Text style={styles.clearDataText}>{t('more.deleteAllData')}</Text>
           </>
         )}
       </TouchableOpacity>
       <TouchableOpacity style={styles.logoutItem} onPress={() => setLogoutDialog(true)} activeOpacity={0.7}>
         <Ionicons name="log-out-outline" size={22} color="#dc2626" style={styles.icon} />
-        <Text style={styles.logoutLabel}>Logout</Text>
+        <Text style={styles.logoutLabel}>{t('settings.logout')}</Text>
       </TouchableOpacity>
       <ConfirmationDialog
         visible={logoutDialog}
-        title="Logout"
-        message="Are you sure you want to logout?"
-        confirmText="Logout"
-        cancelText="Cancel"
+        title={t('settings.logout')}
+        message={t('settings.logoutConfirm')}
+        confirmText={t('settings.logout')}
+        cancelText={t('common.cancel')}
         variant="destructive"
         icon="log-out-outline"
         onConfirm={() => { setLogoutDialog(false); logout(); }}
@@ -158,10 +160,10 @@ export default function MoreMenuScreen({ navigation }) {
       />
       <ConfirmationDialog
         visible={clearDataDialog}
-        title="Delete All Data"
-        message="This will permanently delete all folders, boxes, sales, and report data. Your user account and PIN will NOT be affected. This action cannot be undone."
-        confirmText="Delete All"
-        cancelText="Cancel"
+        title={t('more.deleteAllData')}
+        message={t('more.deleteAllConfirm')}
+        confirmText={t('more.deleteAll')}
+        cancelText={t('common.cancel')}
         variant="destructive"
         icon="trash-outline"
         loading={clearing}

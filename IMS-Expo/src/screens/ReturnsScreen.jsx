@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import StylishLoader from '../components/StylishLoader';
 import { useTheme } from '../context/ThemeContext';
 import { returnAPI, categoryAPI } from '../services/api';
+import { useTranslation } from 'react-i18next';
 
 const GRADIENTS = [
   ['#667eea', '#764ba2'],
@@ -12,6 +13,7 @@ const GRADIENTS = [
 ];
 
 export default function ReturnsScreen() {
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -71,10 +73,10 @@ export default function ReturnsScreen() {
       <Text style={styles.cardTitle}>{item.name}</Text>
       <Text style={styles.cardCat}>{item.category?.name || item.category}</Text>
       <View style={styles.stats}>
-        <View style={styles.stat}><Text style={styles.statLabel}>Total</Text><Text style={styles.statValue}>{item.totalStock || 0}</Text></View>
-        <View style={styles.stat}><Text style={[styles.statLabel, { color: '#ed6c02' }]}>Return</Text><Text style={[styles.statValue, { color: '#ed6c02' }]}>{item.returned || 0}</Text></View>
-        <View style={styles.stat}><Text style={styles.statLabel}>Price</Text><Text style={styles.statValue}>₹{(item.price || 0).toFixed(2)}</Text></View>
-        <View style={styles.stat}><Text style={[styles.statLabel, { color: '#d32f2f' }]}>Value</Text><Text style={[styles.statValue, { color: '#d32f2f' }]}>₹{((item.returned || 0) * (item.price || 0)).toFixed(2)}</Text></View>
+        <View style={styles.stat}><Text style={styles.statLabel}>{t('returns.total')}</Text><Text style={styles.statValue}>{item.totalStock || 0}</Text></View>
+        <View style={styles.stat}><Text style={[styles.statLabel, { color: '#ed6c02' }]}>{t('returns.return')}</Text><Text style={[styles.statValue, { color: '#ed6c02' }]}>{item.returned || 0}</Text></View>
+        <View style={styles.stat}><Text style={styles.statLabel}>{t('returns.price')}</Text><Text style={styles.statValue}>₹{(item.price || 0).toFixed(2)}</Text></View>
+        <View style={styles.stat}><Text style={[styles.statLabel, { color: '#d32f2f' }]}>{t('returns.value')}</Text><Text style={[styles.statValue, { color: '#d32f2f' }]}>₹{((item.returned || 0) * (item.price || 0)).toFixed(2)}</Text></View>
       </View>
     </View>
   );
@@ -83,25 +85,25 @@ export default function ReturnsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
-          <Text style={styles.statCardLabel}>Total returns</Text>
+          <Text style={styles.statCardLabel}>{t('returns.totalReturns')}</Text>
           {loading ? <StylishLoader size="small" variant="dots" color="#ed6c02" /> : <Text style={[styles.statCardValue, { color: '#ed6c02' }]}>{stats.totalReturns}</Text>}
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statCardLabel}>Total value</Text>
+          <Text style={styles.statCardLabel}>{t('returns.totalValue')}</Text>
           {loading ? <StylishLoader size="small" variant="dots" color="#d32f2f" /> : <Text style={[styles.statCardValue, { color: '#d32f2f' }]}>₹{stats.totalValue.toFixed(2)}</Text>}
         </View>
       </View>
-      <Text style={[styles.inputLabel, { color: colors.text }]}>Search returned boxes</Text>
+      <Text style={[styles.inputLabel, { color: colors.text }]}>{t('returns.searchReturned')}</Text>
       <TextInput
         style={[styles.search, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
-        placeholder="Search returned boxes..."
+        placeholder={t('returns.searchPlaceholder')}
         placeholderTextColor={colors.placeholder}
         value={searchTerm}
         onChangeText={setSearchTerm}
       />
       <View style={styles.filterRow}>
         <TouchableOpacity style={[styles.filterChip, categoryFilter === 'all' && styles.filterChipActive]} onPress={() => setCategoryFilter('all')}>
-          <Text style={[styles.filterText, categoryFilter === 'all' && styles.filterTextActive]}>All</Text>
+          <Text style={[styles.filterText, categoryFilter === 'all' && styles.filterTextActive]}>{t('common.all')}</Text>
         </TouchableOpacity>
         {categories.map((c) => (
           <TouchableOpacity key={c._id} style={[styles.filterChip, categoryFilter === c._id && styles.filterChipActive]} onPress={() => setCategoryFilter(c._id)}>
@@ -114,7 +116,7 @@ export default function ReturnsScreen() {
           <StylishLoader size="large" color="#667eea" />
         </View>
       ) : (
-        <FlatList data={filteredItems} keyExtractor={(item) => item._id} renderItem={renderItem} contentContainerStyle={styles.list} ListEmptyComponent={<Text style={styles.empty}>No returned boxes</Text>} />
+        <FlatList data={filteredItems} keyExtractor={(item) => item._id} renderItem={renderItem} contentContainerStyle={styles.list} ListEmptyComponent={<Text style={styles.empty}>{t('returns.noReturns')}</Text>} />
       )}
     </View>
   );

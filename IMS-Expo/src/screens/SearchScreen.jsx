@@ -4,6 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { productAPI, categoryAPI } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import CustomSnackbar from '../components/Snackbar';
 
 const getCurrentMonthDates = () => {
@@ -14,10 +15,10 @@ const getCurrentMonthDates = () => {
   return { start: fmt(first), end: fmt(last) };
 };
 
-const formatDisplayDate = (dateStr) => {
+const formatDisplayDate = (dateStr, locale = 'en-IN') => {
   const [y, m, d] = dateStr.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  return date.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
 const parseDateStr = (str) => {
@@ -26,7 +27,9 @@ const parseDateStr = (str) => {
 };
 
 export default function SearchScreen() {
+  const { t, i18n } = useTranslation();
   const { colors } = useTheme();
+  const dateLocale = i18n.language === 'kn' ? 'kn-IN' : 'en-IN';
   const defaultDates = getCurrentMonthDates();
   const [startDate, setStartDate] = useState(defaultDates.start);
   const [endDate, setEndDate] = useState(defaultDates.end);
@@ -64,7 +67,7 @@ export default function SearchScreen() {
 
   const handleSearch = async () => {
     if (!startDate || !endDate) {
-      setSnackbar({ open: true, message: 'Select start and end dates', severity: 'error' });
+      setSnackbar({ open: true, message: t('search.selectDates'), severity: 'error' });
       return;
     }
     setSearching(true);
@@ -79,9 +82,9 @@ export default function SearchScreen() {
       const availableValue = allItems.reduce((s, i) => s + (i.stock || 0) * (i.price || 0), 0);
       setResults({ itemsSold, itemsReturned, itemsAvailable, soldValue, returnedValue, availableValue });
       setItems(allItems);
-      setSnackbar({ open: true, message: `Found ${allItems.length} boxes`, severity: 'success' });
+      setSnackbar({ open: true, message: t('search.foundBoxes', { count: allItems.length }), severity: 'success' });
     } catch (error) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Search failed', severity: 'error' });
+      setSnackbar({ open: true, message: error.response?.data?.message || t('search.searchFailed'), severity: 'error' });
     } finally {
       setSearching(false);
     }
@@ -117,7 +120,7 @@ export default function SearchScreen() {
           activeOpacity={0.7}
         >
           <Ionicons name="calendar-outline" size={28} color={colors.primary} style={styles.dateIcon} />
-          <Text style={[styles.datePickerText, { color: colors.text }]}>Start: {formatDisplayDate(startDate)}</Text>
+          <Text style={[styles.datePickerText, { color: colors.text }]}>{t('search.start')}: {formatDisplayDate(startDate, dateLocale)}</Text>
           <Ionicons name="chevron-down" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
         <TouchableOpacity
@@ -126,7 +129,7 @@ export default function SearchScreen() {
           activeOpacity={0.7}
         >
           <Ionicons name="calendar-outline" size={28} color={colors.primary} style={styles.dateIcon} />
-          <Text style={[styles.datePickerText, { color: colors.text }]}>End: {formatDisplayDate(endDate)}</Text>
+          <Text style={[styles.datePickerText, { color: colors.text }]}>{t('search.end')}: {formatDisplayDate(endDate, dateLocale)}</Text>
           <Ionicons name="chevron-down" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
 
@@ -145,16 +148,16 @@ export default function SearchScreen() {
         )}
         {Platform.OS === 'ios' && showPicker && (
           <TouchableOpacity style={styles.doneBtn} onPress={() => setShowPicker(null)}>
-            <Text style={styles.doneBtnText}>Done</Text>
+            <Text style={styles.doneBtnText}>{t('common.done')}</Text>
           </TouchableOpacity>
         )}
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.resetBtn} onPress={handleReset} disabled={searching}>
-            <Text style={styles.resetBtnText}>Reset</Text>
+            <Text style={styles.resetBtnText}>{t('common.reset')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.searchBtn} onPress={handleSearch} disabled={searching}>
-            <Text style={styles.searchBtnText}>{searching ? 'Searching...' : 'Search'}</Text>
+            <Text style={styles.searchBtnText}>{searching ? t('common.searching') : t('common.search')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -163,26 +166,26 @@ export default function SearchScreen() {
         <>
           <View style={styles.statsRow}>
             <View style={[styles.statCard, { borderLeftColor: '#11998e' }]}>
-              <Text style={styles.statLabel}>Sold</Text>
+              <Text style={styles.statLabel}>{t('search.sold')}</Text>
               <Text style={styles.statValue}>{results.itemsSold}</Text>
               <Text style={styles.statSub}>₹{results.soldValue.toFixed(2)}</Text>
             </View>
             <View style={[styles.statCard, { borderLeftColor: '#f5576c' }]}>
-              <Text style={styles.statLabel}>Returned</Text>
+              <Text style={styles.statLabel}>{t('search.returned')}</Text>
               <Text style={styles.statValue}>{results.itemsReturned}</Text>
               <Text style={styles.statSub}>₹{results.returnedValue.toFixed(2)}</Text>
             </View>
             <View style={[styles.statCard, { borderLeftColor: '#667eea' }]}>
-              <Text style={styles.statLabel}>In stock</Text>
+              <Text style={styles.statLabel}>{t('search.inStock')}</Text>
               <Text style={styles.statValue}>{results.itemsAvailable}</Text>
               <Text style={styles.statSub}>₹{results.availableValue.toFixed(2)}</Text>
             </View>
           </View>
-          <Text style={styles.netLabel}>Net (sold - returned): ₹{(results.soldValue - results.returnedValue).toFixed(2)}</Text>
+          <Text style={styles.netLabel}>{t('search.net')}: ₹{(results.soldValue - results.returnedValue).toFixed(2)}</Text>
           <View style={styles.filterRow}>
             {['all', 'sold', 'returned', 'inStock'].map((f) => (
               <TouchableOpacity key={f} style={[styles.filterChip, filter === f && styles.filterChipActive]} onPress={() => setFilter(f)}>
-                <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f === 'all' ? 'All' : f === 'inStock' ? 'In stock' : f}</Text>
+                <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f === 'all' ? t('common.all') : f === 'inStock' ? t('search.inStock') : t(`search.${f}`)}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -194,10 +197,10 @@ export default function SearchScreen() {
                 <Text style={styles.itemTitle}>{item.name}</Text>
                 <Text style={styles.itemCat}>{item.category?.name || item.category}</Text>
                 <View style={styles.itemStats}>
-                  <Text style={styles.itemStat}>Total: {item.totalStock || 0}</Text>
-                  <Text style={[styles.itemStat, { color: '#d32f2f' }]}>Sold: {item.sold || 0}</Text>
-                  <Text style={[styles.itemStat, { color: '#ed6c02' }]}>Return: {item.returned || 0}</Text>
-                  <Text style={[styles.itemStat, { color: '#2e7d32' }]}>Stock: {item.stock || 0}</Text>
+                  <Text style={styles.itemStat}>{t('search.total')}: {item.totalStock || 0}</Text>
+                  <Text style={[styles.itemStat, { color: '#d32f2f' }]}>{t('search.sold')}: {item.sold || 0}</Text>
+                  <Text style={[styles.itemStat, { color: '#ed6c02' }]}>{t('search.returned')}: {item.returned || 0}</Text>
+                  <Text style={[styles.itemStat, { color: '#2e7d32' }]}>{t('search.inStock')}: {item.stock || 0}</Text>
                 </View>
               </View>
             )}
@@ -207,7 +210,7 @@ export default function SearchScreen() {
       )}
 
       {!results && !searching && (
-        <Text style={[styles.hint, { color: colors.textSecondary }]}>Tap dates to select range, then click Search</Text>
+        <Text style={[styles.hint, { color: colors.textSecondary }]}>{t('search.hint')}</Text>
       )}
 
       <CustomSnackbar open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })} />

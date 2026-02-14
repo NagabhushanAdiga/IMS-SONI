@@ -6,15 +6,17 @@ import StylishLoader from '../components/StylishLoader';
 import StatCard from '../components/StatCard';
 import { useTheme } from '../context/ThemeContext';
 import { productAPI } from '../services/api';
+import { useTranslation } from 'react-i18next';
 
 const CARDS = [
-  { key: 'totalStockAdded', title: 'Total stock added', gradient: ['#667eea', '#764ba2'], icon: 'add-circle-outline' },
-  { key: 'totalSold', title: 'Boxes Sold', gradient: ['#11998e', '#38ef7d'], icon: 'cart-outline' },
-  { key: 'totalReturned', title: 'Boxes Returned', gradient: ['#f093fb', '#f5576c'], icon: 'return-down-back-outline' },
-  { key: 'totalRemaining', title: 'Boxes Remaining', gradient: ['#3a7bd5', '#00d2ff'], icon: 'cube-outline' },
+  { key: 'totalStockAdded', titleKey: 'dashboard.totalStockAdded', gradient: ['#667eea', '#764ba2'], icon: 'add-circle-outline' },
+  { key: 'totalSold', titleKey: 'dashboard.boxesSold', gradient: ['#11998e', '#38ef7d'], icon: 'cart-outline' },
+  { key: 'totalReturned', titleKey: 'dashboard.boxesReturned', gradient: ['#f093fb', '#f5576c'], icon: 'return-down-back-outline' },
+  { key: 'totalRemaining', titleKey: 'dashboard.boxesRemaining', gradient: ['#3a7bd5', '#00d2ff'], icon: 'cube-outline' },
 ];
 
 export default function DashboardScreen() {
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -47,13 +49,13 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
-      {CARDS.map(({ key, title, gradient, icon }, index) => (
+      {CARDS.map(({ key, titleKey, gradient, icon }, index) => (
         <Animated.View
           key={key}
           entering={FadeInUp.delay(index * 100).duration(400).springify()}
         >
           <StatCard
-            title={title}
+            title={t(titleKey)}
             value={stats?.[key] ?? 0}
             gradient={gradient}
             icon={icon}

@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import StylishLoader from '../components/StylishLoader';
 import { useTheme } from '../context/ThemeContext';
 import { saleAPI } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import CustomSnackbar from '../components/Snackbar';
 
 const getStatusColor = (status) => {
@@ -12,6 +13,7 @@ const getStatusColor = (status) => {
 };
 
 export default function SalesScreen() {
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export default function SalesScreen() {
       setOrders(Array.isArray(salesData) ? salesData : []);
     } catch (error) {
       setOrders([]);
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Error loading sales', severity: 'error' });
+      setSnackbar({ open: true, message: error.response?.data?.message || t('sales.errorLoading'), severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -57,15 +59,21 @@ export default function SalesScreen() {
       await saleAPI.update(selectedOrder._id, { status: newStatus });
       setOrders(orders.map((o) => (o._id === selectedOrder._id ? { ...o, status: newStatus } : o)));
       setSelectedOrder({ ...selectedOrder, status: newStatus });
-      setSnackbar({ open: true, message: 'Status updated!', severity: 'success' });
+      setSnackbar({ open: true, message: t('sales.statusUpdated'), severity: 'success' });
     } catch (error) {
-      setSnackbar({ open: true, message: error.response?.data?.message || 'Error updating', severity: 'error' });
+      setSnackbar({ open: true, message: error.response?.data?.message || t('sales.errorUpdating'), severity: 'error' });
     } finally {
       setSaving(false);
     }
   };
 
-  const statusOptions = ['Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'];
+  const statusOptions = [
+    { key: 'pending', value: 'Pending' },
+    { key: 'processing', value: 'Processing' },
+    { key: 'shipped', value: 'Shipped' },
+    { key: 'completed', value: 'Completed' },
+    { key: 'cancelled', value: 'Cancelled' },
+  ];
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.card} onPress={() => setSelectedOrder(item)}>
@@ -82,10 +90,10 @@ export default function SalesScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.inputLabel, { color: colors.text }]}>Search sales</Text>
-      <TextInput
-        style={[styles.search, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
-        placeholder="Search sales..."
+        <Text style={[styles.inputLabel, { color: colors.text }]}>{t('sales.searchSales')}</Text>
+        <TextInput
+          style={[styles.search, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+          placeholder={t('sales.searchPlaceholder')}
         placeholderTextColor={colors.placeholder}
         value={searchTerm}
         onChangeText={setSearchTerm}
@@ -95,31 +103,31 @@ export default function SalesScreen() {
           <StylishLoader size="large" color={colors.primary} />
         </View>
       ) : (
-        <FlatList data={filteredOrders} keyExtractor={(item) => item._id} renderItem={renderItem} contentContainerStyle={styles.list} ListEmptyComponent={<Text style={styles.empty}>No sales found</Text>} />
+        <FlatList data={filteredOrders} keyExtractor={(item) => item._id} renderItem={renderItem} contentContainerStyle={styles.list} ListEmptyComponent={<Text style={styles.empty}>{t('sales.noSales')}</Text>} />
       )}
 
       <Modal visible={!!selectedOrder} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Sale details</Text>
+            <Text style={styles.modalTitle}>{t('sales.saleDetails')}</Text>
             {selectedOrder && (
               <>
-                <Text style={styles.detail}>ID: {selectedOrder.saleId || `SALE-${selectedOrder._id?.slice(-6)}`}</Text>
-                <Text style={styles.detail}>Customer: {selectedOrder.customerName || selectedOrder.customer}</Text>
-                <Text style={styles.detail}>Amount: ₹{(selectedOrder.totalAmount || selectedOrder.total || 0).toFixed(2)}</Text>
-                <Text style={styles.detail}>Status: {selectedOrder.status}</Text>
-                <Text style={styles.label}>Change status:</Text>
+                <Text style={styles.detail}>{t('sales.id')}: {selectedOrder.saleId || `SALE-${selectedOrder._id?.slice(-6)}`}</Text>
+                <Text style={styles.detail}>{t('sales.customer')}: {selectedOrder.customerName || selectedOrder.customer}</Text>
+                <Text style={styles.detail}>{t('sales.amount')}: ₹{(selectedOrder.totalAmount || selectedOrder.total || 0).toFixed(2)}</Text>
+                <Text style={styles.detail}>{t('sales.status')}: {selectedOrder.status}</Text>
+                <Text style={styles.label}>{t('sales.changeStatus')}</Text>
                 <View style={styles.statusRow}>
-                  {statusOptions.map((s) => (
-                    <TouchableOpacity key={s} style={[styles.statusBtn, selectedOrder.status === s && styles.statusBtnActive]} onPress={() => handleStatusChange(s)} disabled={saving}>
-                      <Text style={[styles.statusBtnText, selectedOrder.status === s && styles.statusBtnTextActive]}>{s}</Text>
+                  {statusOptions.map((opt) => (
+                    <TouchableOpacity key={opt.value} style={[styles.statusBtn, selectedOrder.status === opt.value && styles.statusBtnActive]} onPress={() => handleStatusChange(opt.value)} disabled={saving}>
+                      <Text style={[styles.statusBtnText, selectedOrder.status === opt.value && styles.statusBtnTextActive]}>{t(`sales.${opt.key}`)}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               </>
             )}
             <TouchableOpacity style={styles.closeBtn} onPress={() => setSelectedOrder(null)}>
-              <Text style={styles.closeBtnText}>Close</Text>
+              <Text style={styles.closeBtnText}>{t('common.close')}</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -5,9 +5,11 @@ import StylishLoader from '../components/StylishLoader';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { productAPI, categoryAPI } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import StatCard from '../components/StatCard';
 
 export default function ReportsScreen() {
+  const { t, i18n } = useTranslation();
   const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
@@ -51,7 +53,8 @@ export default function ReportsScreen() {
   };
 
   const stats = getFilteredStats();
-  const monthName = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  const locale = i18n.language === 'kn' ? 'kn-IN' : 'en-IN';
+  const monthName = new Date().toLocaleString(locale, { month: 'long', year: 'numeric' });
 
   if (loading) {
     return (
@@ -63,9 +66,9 @@ export default function ReportsScreen() {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>{monthName} Report</Text>
+      <Text style={styles.title}>{monthName} {t('reports.report')}</Text>
       <Text style={styles.subtitle}>
-        {categoryFilter === 'all' ? 'All folders' : categories.find((c) => c._id === categoryFilter)?.name || 'Selected'}
+        {categoryFilter === 'all' ? t('reports.allFolders') : categories.find((c) => c._id === categoryFilter)?.name || t('reports.selected')}
       </Text>
 
       <View style={styles.filterRow}>
@@ -76,11 +79,11 @@ export default function ReportsScreen() {
         >
           {categoryFilter === 'all' ? (
             <LinearGradient colors={['#667eea', '#764ba2']} style={styles.filterChipActive} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-              <Text style={styles.filterTextActive}>All</Text>
+              <Text style={styles.filterTextActive}>{t('common.all')}</Text>
             </LinearGradient>
           ) : (
             <View style={styles.filterChip}>
-              <Text style={styles.filterText}>All</Text>
+              <Text style={styles.filterText}>{t('common.all')}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -106,19 +109,19 @@ export default function ReportsScreen() {
 
       <View style={styles.cardsContainer}>
         <StatCard
-          title="Total boxes"
+          title={t('reports.totalBoxes')}
           value={stats.totalBoxes}
           gradient={['#667eea', '#764ba2']}
           icon="cube-outline"
         />
         <StatCard
-          title="Boxes sold"
+          title={t('reports.boxesSold')}
           value={stats.soldBoxes}
           gradient={['#11998e', '#38ef7d']}
           icon="cart-outline"
         />
         <StatCard
-          title="Boxes returned"
+          title={t('reports.boxesReturned')}
           value={stats.returnedBoxes}
           gradient={['#f093fb', '#f5576c']}
           icon="return-down-back-outline"
@@ -126,11 +129,11 @@ export default function ReportsScreen() {
       </View>
 
       <View style={styles.summary}>
-        <Text style={styles.summaryLabel}>Net (sold - returned)</Text>
+        <Text style={styles.summaryLabel}>{t('reports.netSoldReturned')}</Text>
         <Text style={styles.summaryValue}>₹{(stats.soldValue - stats.returnedValue).toFixed(2)}</Text>
       </View>
       <View style={styles.summary}>
-        <Text style={styles.summaryLabel}>Return rate</Text>
+        <Text style={styles.summaryLabel}>{t('reports.returnRate')}</Text>
         <Text style={styles.summaryValue}>
           {stats.soldBoxes > 0 ? ((stats.returnedBoxes / stats.soldBoxes) * 100).toFixed(1) : 0}%
         </Text>

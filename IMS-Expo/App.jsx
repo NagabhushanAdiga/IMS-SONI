@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, StyleSheet, Platform } from 'react-native';
 import StylishLoader from './src/components/StylishLoader';
 import { StatusBar } from 'expo-status-bar';
@@ -29,6 +30,7 @@ const Tab = createBottomTabNavigator();
 const HEADER_BG = '#16213e';
 
 function FoldersStack() {
+  const { t } = useTranslation();
   return (
     <Stack.Navigator
       screenOptions={{
@@ -36,17 +38,18 @@ function FoldersStack() {
         headerTintColor: '#fff',
       }}
     >
-      <Stack.Screen name="FolderList" component={FolderScreen} options={{ title: 'Folders' }} />
+      <Stack.Screen name="FolderList" component={FolderScreen} options={{ title: t('nav.folders') }} />
       <Stack.Screen
         name="FolderItems"
         component={FolderItemsScreen}
-        options={({ route }) => ({ title: route.params?.folderName || 'Folder' })}
+        options={({ route }) => ({ title: route.params?.folderName || t('nav.folder') })}
       />
     </Stack.Navigator>
   );
 }
 
 function MoreStack() {
+  const { t } = useTranslation();
   return (
     <Stack.Navigator
       screenOptions={{
@@ -57,21 +60,21 @@ function MoreStack() {
       <Stack.Screen
         name="MoreMenu"
         component={MoreMenuScreen}
-        options={{ title: 'More', headerShown: true }}
+        options={{ title: t('nav.more'), headerShown: true }}
       />
-      <Stack.Screen name="Folders" component={FolderScreen} options={{ title: 'Folders' }} />
+      <Stack.Screen name="Folders" component={FolderScreen} options={{ title: t('nav.folders') }} />
       <Stack.Screen
         name="FolderItems"
         component={FolderItemsScreen}
-        options={({ route }) => ({ title: route.params?.folderName || 'Folder' })}
+        options={({ route }) => ({ title: route.params?.folderName || t('nav.folder') })}
       />
-      <Stack.Screen name="Sales" component={SalesScreen} options={{ title: 'Sales' }} />
+      <Stack.Screen name="Sales" component={SalesScreen} options={{ title: t('nav.sales') }} />
       <Stack.Screen name="Returns" component={ReturnsScreen} />
       <Stack.Screen name="Reports" component={ReportsScreen} />
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{ title: 'Settings', headerShown: true }}
+        options={{ title: t('nav.settings'), headerShown: true }}
       />
       <Stack.Screen name="Developer" component={DeveloperScreen} />
     </Stack.Navigator>
@@ -79,6 +82,7 @@ function MoreStack() {
 }
 
 function MainTabs() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const bottomInset = Platform.OS === 'android' ? Math.max(24, insets.bottom) : insets.bottom;
@@ -120,26 +124,27 @@ function MainTabs() {
       <Tab.Screen
         name="Dashboard"
         component={DashboardScreen}
-        options={{ title: 'Soni Traders', tabBarLabel: 'Home' }}
+        options={{ title: 'Soni Traders', tabBarLabel: t('tabs.home') }}
       />
       <Tab.Screen
         name="Folders"
         component={FoldersStack}
-        options={{ headerShown: false, tabBarLabel: 'Folders' }}
+        options={{ headerShown: false, tabBarLabel: t('tabs.folders') }}
       />
-      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} options={{ title: t('tabs.search') }} />
       <Tab.Screen
         name="More"
         component={MoreStack}
-        options={{ headerShown: false, tabBarLabel: 'More' }}
+        options={{ headerShown: false, tabBarLabel: t('tabs.more') }}
       />
     </Tab.Navigator>
   );
 }
 
 function LoadingScreen() {
+  const { t } = useTranslation();
   const { colors } = useTheme();
-  return <StylishLoader fullScreen color={colors.primary} message="Loading..." backgroundColor={colors.background} />;
+  return <StylishLoader fullScreen color={colors.primary} message={t('common.loading')} backgroundColor={colors.background} />;
 }
 
 function AppContent() {
